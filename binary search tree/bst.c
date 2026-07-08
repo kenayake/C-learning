@@ -153,6 +153,20 @@ Node *search(Node *node, int num) {
   }
 }
 
+bool exists(Node *node, int num) {
+  if (node == NULL) {
+    return false;
+  }
+  if (node->data == num) {
+    return true;
+  }
+  if (node->data < num) {
+    return exists(node->right, num);
+  } else {
+    return exists(node->left, num);
+  }
+}
+
 Node* delete(Node* node, int num) {
     if (node == NULL) {
         exit(EXIT_SUCCESS);
@@ -239,24 +253,17 @@ int main() {
   Node *bst = create_node(20);
   //   display_tree(bst);
 
-  insert(&bst, 15);
-  //   display_tree(bst);
-  insert(&bst, 13);
-  //   display_tree(bst);
-  insert(&bst, 10);
-  //   display_tree(bst);
-  insert(&bst, 7);
-  //   display_tree(bst);
-  insert(&bst, 6);
-  //   display_tree(bst);
-  insert(&bst, 19);
-  insert(&bst, 12);
-  insert(&bst, 14);
-  insert(&bst, 31);
+  for (int i = 0; i < 100; i++) {
+    int ran = rand() % 101;
+    if (exists(bst, ran)) {
+      continue;
+    }
+    insert(&bst, ran);
+  }
 
   display_tree(bst);
 
-  printf("%d", search(bst, 19)->data);
+  // printf("%d", search(bst, 19)->data);
 
   bst = delete(bst, 15);
 
