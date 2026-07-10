@@ -26,7 +26,7 @@ MemoryRegistry initialize_registry() {
     MemoryRegistry registry;
 
     registry.entries = 0;
-    registry.buckets = calloc(TABLE_SIZE, sizeof(AllocationEntry));
+    registry.buckets = calloc(TABLE_SIZE, sizeof(AllocationEntry*));
     return registry;
 }
 
@@ -103,15 +103,20 @@ void resize_registry(MemoryRegistry* registry, int* TABLE_SIZE) {
     *TABLE_SIZE = oldTableSize * 2;
 
     AllocationEntry** oldBucket = registry->buckets;
-    registry->buckets = calloc(*TABLE_SIZE, sizeof(AllocationEntry));
+    registry->buckets = calloc(*TABLE_SIZE, sizeof(AllocationEntry*));
 
     for (int i = 0; i < oldTableSize; i++) {
         if (oldBucket[i] != NULL) {
             AllocationEntry* entry = oldBucket[i];
-    
+            
             while (entry != NULL) {
-                register_allocation(registry, entry->address, entry->size);
-                entry = entry->next;
+                AllocationEntry *next = entry->next;
+                
+                unsigned int index = hash(entry->address);
+                entry->next = registry->buckets[index];
+                registry->buckets[index] = entry;
+
+                entry = next;
             }
         }
     }
